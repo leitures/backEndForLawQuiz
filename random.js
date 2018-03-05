@@ -1,4 +1,4 @@
-const totalNum = 14;
+var totalNum = 14;
 var randomSet = [];
 for(var i = 0;i<10;i++){
   pushNum();
