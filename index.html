@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="full-screen" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="../js/flexible_css.js"></script>
+  <script src="../js/flexible.js"></script>
+  <link href="../css/index.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/font-awesome/css/font-awesome.css">
+  <link rel="stylesheet" href="../css/ele2/index.css">
+  <link rel="shortcut icon" href="../favicon.ico" />
+
+  <title>灾后重建平台</title>
+</head>
+
+<body>
+  <script src="../js/layer.js"></script>
+  <div id="vue-home" v-cloak v-loading.fullscreen.lock="fullscreenLoading">
+    <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" background-color="#4396fb" text-color="#fff" active-text-color="#ffdba1">
+      <el-menu-item index="list" style="width:25%;display: flex;flex-direction: row;justify-content: center;">灾民列表</el-menu-item>
+      <el-menu-item index="search" style="width:25%;display: flex;flex-direction: row;justify-content: center;">基友查询</el-menu-item>
+      <el-menu-item index="register" style="width:25%;display: flex;flex-direction: row;justify-content: center;">信息登记</el-menu-item>
+      <el-menu-item index="fun" style="width:25%;display: flex;flex-direction: row;justify-content: center;">今日缺德</el-menu-item>
+    </el-menu>
+
+    <div class="scroll-div" v-show="pageContent == 'list'">
+      <el-table :data="tableData" border style="width: 100%">
+        <el-table-column sortable label="大号" width="180">
+          <template scope="scope">
+            <span style="" v-on:click="openPageUrl(scope.row.pageUrl)">{{ scope.row.originId }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column sortable label="小号" width="180">
+          <template scope="scope">
+            <span style="" v-on:click="openPageUrl(scope.row.pageUrl)">{{ scope.row.currentId }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+
+
+
+
+    <div class="scroll-div" v-show="pageContent == 'search'">
+      <div class="searchMenu">
+        <div class="searchInput">
+          <el-input v-model="keyword" placeholder="请输入关键词" size="medium"></el-input>
+        </div>
+        <div class="searchBtn">
+          <el-button type="primary" icon="el-icon-search" size="small" style="margin-left:10px" v-on:click="clickSearch"></el-button>
+        </div>
+      </div>
+
+      <el-table :data="tableData2" border style="width: 100%">
+        <el-table-column sortable label="大号" width="180">
+          <template scope="scope">
+            <span style="" v-on:click="openPageUrl(scope.row.pageUrl)">{{ scope.row.originId }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column sortable label="小号" width="180">
+          <template scope="scope">
+            <span style="" v-on:click="openPageUrl(scope.row.pageUrl)">{{ scope.row.currentId }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+
+    </div>
+
+    <div class="scroll-div" v-show="pageContent == 'register'">
+     <div class="info-form">
+       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="faceid-text">
+         <el-form-item label="问题" prop="originId">
+           <el-input placeholder="请输入原微博名" v-model="ruleForm.originId" style="line-height:0.5rem"></el-input>
+         </el-form-item>
+         <el-form-item label="新ID" prop="currentId">
+           <el-input placeholder="请输入现微博名" v-model="ruleForm.currentId" style="line-height:0.5rem"></el-input>
+         </el-form-item>
+         <el-form-item label="主页url (填写后在列表里点击可直达=ww=)" prop="pageUrl">
+           <el-input placeholder="请输入新的主页地址" v-model="ruleForm.pageUrl" style="line-height:0.5rem"></el-input>
+         </el-form-item>
+
+       </el-form>
+     </div>
+
+    <img src="../img/submit.png" class="submit-btn" v-on:click="submitInfo" />
+
+
+    </div>
+
+    <div class="scroll-div" v-show="pageContent == 'fun'">
+      <img src="../img/quede.jpg" style="width:100%"/>
+      <div class="self-desc">
+        <p>
+          赶时间做得有点粗暴，请各位见谅。目前主要还是靠大家人力登记信息，希望各位小伙伴们的首页能恢复往日的逗比、日常和缺德。也希望大家能交到更多新朋友qwq
+        </p>
+      </div>
+    </div>
+
+
+
+  </div>
+
+
+
+  <script src="../js/vue.js"></script>
+  <script src="../js/ele2/index.js"></script>
+  <script src="../js/axios.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/index.js"></script>
+</body>
+
+</html>

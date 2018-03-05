@@ -8,104 +8,261 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 const databaseName = config.databaseName;
 const mysqlConnect = {
-    host: config.databaseHost,
-    port: config.databasePort,
-    user: config.databaseUser,
-    password: config.databasePwd
+  host: config.databaseHost,
+  port: config.databasePort,
+  user: config.databaseUser,
+  password: config.databasePwd
 }
+
 
 
 app.use(cors())
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
 app.get('/test', function(req, res) {
-    res.send(200, 'connected!');
+  res.send(200, 'connected!');
 })
 
-app.post('/save_userinfo', function(req, res) {
-    var originId = req.body.originId;
-    var currentId = req.body.currentId;
-    var pageUrl = req.body.pageUrl;
-    console.log('originId is',originId);
-    console.log('currentId is',currentId);
-    var con = mysql.createConnection(mysqlConnect);
-    con.connect(function(err) {
-        if (err)
-            throw err;
-    });
-    // add_user = "insert into imonitor.wwy_user(openId,sex,language,city,province,country,headImgUrl,unionId) values('"+openId+"','"+sex+"','"+language+"','"+city+"','"+province+"','"+country+"','"+headImgUrl+"','"+unionId+"')";
-    add_user = "insert into "+databaseName+".weibo_user(originId,currentId,pageUrl) values('"+originId+"','"+currentId+"','"+pageUrl+"')";
-    con.query(add_user, function(error, results, fields) {
-        if (error) {
-            var opt = JSON.stringify({data: '', success: false});
-            res.json(JSON.parse(opt));
-            throw error;
-        } else {
-            console.log('The result is: ', results);
-            console.log(typeof(results));
-            var opt = JSON.stringify({data: results, success: true});
-            res.json(JSON.parse(opt));
-        }
+app.get('/all_questions', function(req, res) {
+  var con = mysql.createConnection(mysqlConnect);
 
-    });
+  con.connect(function(err) {
+    if (err)
+      throw err;
+  });
 
-    con.end();
+  example6 = "SELECT * FROM " + databaseName + ".game_question"
+
+  con.query(example6, function(error, results, fields) {
+    if (error) {
+      var opt = JSON.stringify({
+        data: '',
+        success: false
+      });
+      res.json(JSON.parse(opt));
+      throw error;
+    } else {
+      console.log('The result is: ', results);
+      console.log(typeof(results));
+      var opt = JSON.stringify({
+        data: results,
+        success: true
+      });
+      res.json(JSON.parse(opt));
+    }
+
+  });
+
+  con.end();
 
 });
 
-app.get('/search_user', function(req, res) {
-    var keyword = req.query.keyword;
+app.get('/count_questions', function(req, res) {
+  var con = mysql.createConnection(mysqlConnect);
+  con.connect(function(err) {
+    if (err)
+      throw err;
+  });
+
+  example6 = "SELECT count(id) FROM " + databaseName + ".game_question"
+
+  con.query(example6, function(error, results, fields) {
+    if (error) {
+      var opt = JSON.stringify({
+        data: '',
+        success: false
+      });
+      res.json(JSON.parse(opt));
+      throw error;
+    } else {
+      console.log('The result is: ', results[0]);
+      var opt = JSON.stringify({
+        data: results,
+        success: true
+      });
+      res.json(JSON.parse(opt));
+    }
+
+  });
+  con.end();
+});
+
+app.post('/save_question', function(req, res) {
+  var question = req.body.question;
+  var answer_a = req.body.answer_a;
+  var answer_b = req.body.answer_b;
+  var answer_c = req.body.answer_c;
+  var answer_d = req.body.answer_d;
+  var correct_answer = req.body.correct_answer;
+  var link = req.body.link;
+
+  console.log('question is', question);
+  console.log('correct_answer is', correct_answer);
+  var con = mysql.createConnection(mysqlConnect);
+  con.connect(function(err) {
+    if (err)
+      throw err;
+  });
+  add_user = "insert into imonitor.game_question(question,answer_a,answer_b,answer_c,answer_d,correct_answer,link) values('" + question + "','" + answer_a + "','" + answer_b + "','" + answer_c + "','" + answer_d + "','" + correct_answer + "','" + link + "')";
+
+  con.query(add_user, function(error, results, fields) {
+    if (error) {
+      var opt = JSON.stringify({
+        data: '',
+        success: false
+      });
+      res.json(JSON.parse(opt));
+      throw error;
+    } else {
+      console.log('The result is: ', results);
+      console.log(typeof(results));
+      var opt = JSON.stringify({
+        data: results,
+        success: true
+      });
+      res.json(JSON.parse(opt));
+    }
+  });
+  con.end();
+
+});
+
+function getQuestionInfo(id) {
+  var promise = new Promise(function(resolve) {
+    var question_info;
     var con = mysql.createConnection(mysqlConnect);
     con.connect(function(err) {
-        if (err)
-            throw err;
+      if (err)
+        throw err;
     });
-    example3 = "SELECT * FROM "+databaseName+".weibo_user WHERE originId like '%" + keyword + "%'";
+
+    example1 = "SELECT * FROM " + databaseName + ".game_question where id =" + id;
+
+    con.query(example1, function(error, results, fields) {
+      if (error) {
+        throw error;
+        question_info = 'error';
+        resolve(question_info);
+      } else {
+        question_info = results[0];
+        resolve(question_info);
+      }
+
+    });
+    con.end();
+  });
+  promise.then(function(value) {
+    return value
+  });
+  return promise;
+}
+
+app.get('/get_question', function(req, res) {
+  var id = req.query.id;
+  var promise = getQuestionInfo(id);
+  promise.then(function(value) {
+    var opt = JSON.stringify({
+      data: {
+        questionInfo: value
+      },
+      success: true
+    });
+    res.json(JSON.parse(opt));
+  });
+
+});
+
+app.get('/get_list', function(req, res) {
+  var totalNum = 14;
+  var randomSet = [];
+  for (var i = 0; i < 10; i++) {
+    pushNum();
+  }
+
+  function pushNum() {
+    var num = Math.floor(Math.random() * totalNum);
+    if (randomSet.indexOf(num) < 0 && num > 0) {
+      randomSet.push(num)
+    } else {
+      pushNum()
+    }
+  }
+  console.log(randomSet);
+  var opt = JSON.stringify({
+    data: {
+      randomSet: randomSet
+    },
+    success: true
+  });
+  res.json(JSON.parse(opt));
+
+});
+
+app.post('/commit_question', function(req, res) {
+  var id = req.body.id;
+  var flag = req.body.flag;
+
+  var con = mysql.createConnection(mysqlConnect);
+  con.connect(function(err) {
+    if (err)
+      throw err;
+  });
+  example3 = "update imonitor.game_question set wrong_num=wrong_num+1 where id = '" + id+"'";
+  example4 = "update imonitor.game_question set correct_num=correct_num+1 where id = '" + id+"'";
+
+
+  if(flag = 0) {
     con.query(example3, function(error, results, fields) {
-        if (error) {
-            var opt = JSON.stringify({data: '', success: false});
-            res.json(JSON.parse(opt));
-            throw error;
-        } else {
-            console.log('The result is: ', results);
-            console.log(typeof(results));
-            var opt = JSON.stringify({data: results, success: true});
-            res.json(JSON.parse(opt));
-        }
+      if (error) {
+        var opt = JSON.stringify({
+          data: '',
+          success: false
+        });
+        res.json(JSON.parse(opt));
+        throw error;
+      } else {
+        console.log('The result is: ', results);
+        console.log(typeof(results));
+        var opt = JSON.stringify({
+          data: results,
+          success: true
+        });
+        res.json(JSON.parse(opt));
+      }
     });
-    con.end();
+  }else {
+    con.query(example4, function(error, results, fields) {
+      if (error) {
+        var opt = JSON.stringify({
+          data: '',
+          success: false
+        });
+        res.json(JSON.parse(opt));
+        throw error;
+      } else {
+        console.log('The result is: ', results);
+        console.log(typeof(results));
+        var opt = JSON.stringify({
+          data: results,
+          success: true
+        });
+        res.json(JSON.parse(opt));
+      }
+    });
+  }
+
+
+  con.end();
+
 });
 
-app.get('/all_users', function(req, res) {
-    var con = mysql.createConnection(mysqlConnect);
 
-    con.connect(function(err) {
-        if (err)
-            throw err;
-    });
 
-    example6 = "SELECT * FROM "+databaseName+".weibo_user"
-
-    con.query(example6, function(error, results, fields) {
-        if (error) {
-            var opt = JSON.stringify({data: '', success: false});
-            res.json(JSON.parse(opt));
-            throw error;
-        } else {
-            console.log('The result is: ', results);
-            console.log(typeof(results));
-            var opt = JSON.stringify({data: results, success: true});
-            res.json(JSON.parse(opt));
-        }
-
-    });
-
-    con.end();
-
-});
 
 
 app.listen(8825, function() {
-    console.log('CORS-enabled web server listening on port 8825')
+  console.log('CORS-enabled web server listening on port 8825')
 })
