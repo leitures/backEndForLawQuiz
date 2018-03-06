@@ -204,6 +204,8 @@ app.get('/get_list', function(req, res) {
 app.post('/commit_question', function(req, res) {
   var id = req.body.id;
   var flag = req.body.flag;
+  console.log('id',id);
+
   console.log('flag',flag);
 
   var con = mysql.createConnection(mysqlConnect);
@@ -211,13 +213,12 @@ app.post('/commit_question', function(req, res) {
     if (err)
       throw err;
   });
-  // example3 = "update imonitor.game_question set wrong_num=wrong_num+1 where id = '" + id+"'";
-  example3 = "select * from imonitor.game_question where id = 1";
-  example4 = "update imonitor.game_question set correct_num=correct_num+1 where id = '" + id+"'";
 
+  commit_sql_flag0 = "update imonitor.game_question set wrong_num=wrong_num+1 where id = '" + id+"'";
+  commit_sql_flag1 = "update imonitor.game_question set correct_num=correct_num+1 where id = '" + id+"'";
 
-  if(flag = 0) {
-    con.query(example3, function(error, results, fields) {
+  if(flag == 0){
+    con.query(commit_sql_flag0, function(error, results, fields) {
       if (error) {
         var opt = JSON.stringify({
           data: '',
@@ -227,16 +228,15 @@ app.post('/commit_question', function(req, res) {
         throw error;
       } else {
         console.log('The result is: ', results);
-        console.log(typeof(results));
         var opt = JSON.stringify({
-          data: results,
           success: true
         });
         res.json(JSON.parse(opt));
       }
+
     });
-  }else {
-    con.query(example4, function(error, results, fields) {
+  }else{
+    con.query(commit_sql_flag1, function(error, results, fields) {
       if (error) {
         var opt = JSON.stringify({
           data: '',
@@ -246,16 +246,14 @@ app.post('/commit_question', function(req, res) {
         throw error;
       } else {
         console.log('The result is: ', results);
-        console.log(typeof(results));
         var opt = JSON.stringify({
-          data: results,
           success: true
         });
         res.json(JSON.parse(opt));
       }
+
     });
   }
-
 
   con.end();
 
