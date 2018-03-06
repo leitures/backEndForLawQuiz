@@ -193,7 +193,7 @@ app.get('/get_list', function(req, res) {
   console.log(randomSet);
   var opt = JSON.stringify({
     data: {
-      randomSet: randomSet
+      quizNumSet: randomSet
     },
     success: true
   });
@@ -204,13 +204,15 @@ app.get('/get_list', function(req, res) {
 app.post('/commit_question', function(req, res) {
   var id = req.body.id;
   var flag = req.body.flag;
+  console.log('flag',flag);
 
   var con = mysql.createConnection(mysqlConnect);
   con.connect(function(err) {
     if (err)
       throw err;
   });
-  example3 = "update imonitor.game_question set wrong_num=wrong_num+1 where id = '" + id+"'";
+  // example3 = "update imonitor.game_question set wrong_num=wrong_num+1 where id = '" + id+"'";
+  example3 = "select * from imonitor.game_question where id = 1";
   example4 = "update imonitor.game_question set correct_num=correct_num+1 where id = '" + id+"'";
 
 
