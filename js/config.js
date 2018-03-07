@@ -1,3 +1,3 @@
 var config = {
-  host: 'http://www.gayhub.me:8825',
+  host: 'http://139.224.206.17:8835',
 }
