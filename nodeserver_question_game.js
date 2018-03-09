@@ -60,6 +60,55 @@ app.get('/all_questions', function(req, res) {
 
 });
 
+app.get('/get_questioninfo', function(req, res) {
+
+  var current_page = 1; //默认为1
+  var num = req.query.page_size; //一页条数
+  if (req.query.page) {
+        current_page = parseInt(req.query.page);
+    }
+  var last_page = current_page - 1;
+  if (current_page <= 1) {
+        last_page = 1;
+    }
+  var next_page = current_page + 1;
+
+
+  console.log(current_page);
+  var con = mysql.createConnection(mysqlConnect);
+
+  con.connect(function(err) {
+    if (err)
+      throw err;
+  });
+
+  example6 = "SELECT * FROM " + databaseName + ".game_question limit " + num + " offset " + num*(current_page -1);
+  console.log(example6);
+
+  con.query(example6, function(error, results, fields) {
+    if (error) {
+      var opt = JSON.stringify({
+        data: '',
+        success: false
+      });
+      res.json(JSON.parse(opt));
+      throw error;
+    } else {
+
+
+      var opt = JSON.stringify({
+        data: results,
+        success: true
+      });
+      res.json(JSON.parse(opt));
+    }
+
+  });
+
+  con.end();
+
+});
+
 app.get('/count_questions', function(req, res) {
   var con = mysql.createConnection(mysqlConnect);
   con.connect(function(err) {
