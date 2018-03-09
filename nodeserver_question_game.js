@@ -259,6 +259,39 @@ app.post('/commit_question', function(req, res) {
 
 });
 
+app.post('/save_user', function(req, res) {
+  var username = req.body.username;
+  var phone = req.body.phone;
+  var score = req.body.score;
+
+  var con = mysql.createConnection(mysqlConnect);
+  con.connect(function(err) {
+    if (err)
+      throw err;
+  });
+  add_user = "insert into imonitor.game_user(username,phone,score) values('" + username + "','" + phone + "','" + score +  "')";
+
+  con.query(add_user, function(error, results, fields) {
+    if (error) {
+      var opt = JSON.stringify({
+        data: '',
+        success: false
+      });
+      res.json(JSON.parse(opt));
+      throw error;
+    } else {
+      console.log('The result is: ', results);
+      console.log(typeof(results));
+      var opt = JSON.stringify({
+        data: results,
+        success: true
+      });
+      res.json(JSON.parse(opt));
+    }
+  });
+  con.end();
+
+});
 
 
 
