@@ -62,50 +62,54 @@ app.get('/all_questions', function(req, res) {
 
 app.get('/get_questioninfo', function(req, res) {
 
-  var current_page = 1; //默认为1
-  var num = req.query.page_size; //一页条数
-  if (req.query.page) {
-        current_page = parseInt(req.query.page);
-    }
-  var last_page = current_page - 1;
-  if (current_page <= 1) {
-        last_page = 1;
-    }
-  var next_page = current_page + 1;
+  var promise = getTotal();
+  promise.then(function(value) {
+    var current_page = 1; //默认为1
+    var num = req.query.page_size; //一页条数
+    if (req.query.page) {
+          current_page = parseInt(req.query.page);
+      }
+    var last_page = current_page - 1;
+    if (current_page <= 1) {
+          last_page = 1;
+      }
+    var next_page = current_page + 1;
+
+    var con = mysql.createConnection(mysqlConnect);
+
+    con.connect(function(err) {
+      if (err)
+        throw err;
+    });
+
+    example6 = "SELECT * FROM " + databaseName + ".game_question limit " + num + " offset " + num*(current_page -1);
 
 
-  console.log(current_page);
-  var con = mysql.createConnection(mysqlConnect);
+    con.query(example6, function(error, results, fields) {
+      if (error) {
+        var opt = JSON.stringify({
+          data: '',
+          success: false
+        });
+        res.json(JSON.parse(opt));
+        throw error;
+      } else {
 
-  con.connect(function(err) {
-    if (err)
-      throw err;
+
+        var opt = JSON.stringify({
+          data: results,
+          total: value,
+          success: true
+        });
+        res.json(JSON.parse(opt));
+      }
+
+    });
+
+    con.end();
   });
 
-  example6 = "SELECT * FROM " + databaseName + ".game_question limit " + num + " offset " + num*(current_page -1);
-  console.log(example6);
 
-  con.query(example6, function(error, results, fields) {
-    if (error) {
-      var opt = JSON.stringify({
-        data: '',
-        success: false
-      });
-      res.json(JSON.parse(opt));
-      throw error;
-    } else {
-
-
-      var opt = JSON.stringify({
-        data: results,
-        success: true
-      });
-      res.json(JSON.parse(opt));
-    }
-
-  });
-
-  con.end();
 
 });
 
@@ -208,6 +212,37 @@ function getQuestionInfo(id) {
   });
   return promise;
 }
+
+function getTotal() {
+  var promise = new Promise(function(resolve) {
+    var question_info;
+    var con = mysql.createConnection(mysqlConnect);
+    con.connect(function(err) {
+      if (err)
+        throw err;
+    });
+
+    example1 = "SELECT count(id) FROM " + databaseName + ".game_question";
+
+    con.query(example1, function(error, results, fields) {
+      if (error) {
+        throw error;
+        question_info = 'error';
+        resolve(question_info);
+      } else {
+        question_info = results[0];
+        resolve(question_info);
+      }
+
+    });
+    con.end();
+  });
+  promise.then(function(value) {
+    return value
+  });
+  return promise;
+}
+
 
 app.get('/get_question', function(req, res) {
   var id = req.query.id;
