@@ -260,7 +260,7 @@ app.get('/get_question', function(req, res) {
 });
 
 app.get('/get_list', function(req, res) {
-  var totalNum = 14;
+  var totalNum = 42;
   var randomSet = [];
   for (var i = 0; i < 10; i++) {
     pushNum();
